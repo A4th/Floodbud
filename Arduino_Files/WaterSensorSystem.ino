@@ -23,31 +23,39 @@ void loop() {
     //moderate_sensor_value = analogRead(MODERATESENSOR);
     //high_sensor_value = analogRead(HIGHSENSOR);
     //veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
-
+    
     if (moderate_sensor_value < THRESHOLD && level != 1){
+        Serial.println("-----START OF READING-----");
         Serial.println("Water Level: Low");
         printValues();
+        Serial.println("------END OF READING------");
         level = 1;
 
         moderate_sensor_value = 101;
     }
     else if (moderate_sensor_value >= THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD && level != 2) {
+        Serial.println("-----START OF READING-----");
         Serial.println("Water Level: Moderate");
         printValues();
+        Serial.println("------END OF READING------");
         level = 2;
 
         high_sensor_value = 101;
     }
     else if (moderate_sensor_value >= THRESHOLD && high_sensor_value >= THRESHOLD && veryhigh_sensor_value < THRESHOLD && level != 3) {
+        Serial.println("-----START OF READING-----");
         Serial.println("Water Level: High");
         printValues();
+        Serial.println("------END OF READING------");
         level = 3;
 
         veryhigh_sensor_value = 101;
     }
     else if (moderate_sensor_value >= THRESHOLD && high_sensor_value >= THRESHOLD && veryhigh_sensor_value >= THRESHOLD && level != 4){
+        Serial.println("-----START OF READING-----");
         Serial.println("Water Level: Very High");
         printValues();
+        Serial.println("------END OF READING------");
         level = 4;
     }
     
