@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Website</title>
+    <title>FloodBud</title>
 </head>
 <body>
-    <h1>Website</h1>
-    <p>Data: {{ data }}</p>
+    <h1>FloodBud</h1>
+    {% for device in devices %}
+        <h2>Sensor {{ loop.index }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Water Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(device.Timestamps|length) %}
+                    <tr>
+                        <td>{{ device.Timestamps[i] }}</td>
+                        <td>{{ device.WaterLevels[i] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
 </body>
 </html>
