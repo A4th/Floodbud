@@ -13,8 +13,6 @@ int moderate_sensor_value = 0; // variable to store WaterSensor1's value
 int high_sensor_value = 0; // variable to store WaterSensor1's value
 int veryhigh_sensor_value = 0; // variable to store WaterSensor1's value
 
-
-
 int level = 0; // variable to store the water level
 
 void setup() {
@@ -26,23 +24,42 @@ void loop() {
     //high_sensor_value = analogRead(HIGHSENSOR);
     //veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
 
-    moderate_sensor_value = 100;
-    high_sensor_value = 200;
-    veryhigh_sensor_value = 100;
-
-    if (moderate_sensor_value < THRESHOLD){
+    if (moderate_sensor_value < THRESHOLD && level != 1){
         Serial.println("Water Level: Low");
+        printValues();
+        level = 1;
+
+        moderate_sensor_value = 101;
     }
-    else {
-        if (moderate_sensor_value >= THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD){
-            Serial.println("Water Level: Moderate");
-        }
-        else if (moderate_sensor_value >= THRESHOLD && high_sensor_value >= THRESHOLD && veryhigh_sensor_value < THRESHOLD){
-            Serial.println("Water Level: High");
-        }
-        else if (moderate_sensor_value >= THRESHOLD && high_sensor_value >= THRESHOLD && veryhigh_sensor_value >= THRESHOLD){
-            Serial.println("Water Level: Very High");
-        }
+    else if (moderate_sensor_value >= THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD && level != 2) {
+        Serial.println("Water Level: Moderate");
+        printValues();
+        level = 2;
+
+        high_sensor_value = 101;
     }
+    else if (moderate_sensor_value >= THRESHOLD && high_sensor_value >= THRESHOLD && veryhigh_sensor_value < THRESHOLD && level != 3) {
+        Serial.println("Water Level: High");
+        printValues();
+        level = 3;
+
+        veryhigh_sensor_value = 101;
+    }
+    else if (moderate_sensor_value >= THRESHOLD && high_sensor_value >= THRESHOLD && veryhigh_sensor_value >= THRESHOLD && level != 4){
+        Serial.println("Water Level: Very High");
+        printValues();
+        level = 4;
+    }
+    
     delay(1000);
+}
+
+void printValues() {
+
+    Serial.print("Moderate Sensor: ");
+    Serial.println(moderate_sensor_value);
+    Serial.print("High Sensor: ");
+    Serial.println(high_sensor_value);
+    Serial.print("Very High Sensor: ");
+    Serial.println(veryhigh_sensor_value);
 }
