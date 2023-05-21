@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -16,10 +17,13 @@ def index():
 
     if request.method == 'POST':
         new_data = request.get_json()
-        # Input format: { 'DeviceID': '', 'Timestamp': '', 'WaterLevel': ''}
+        # Input format: { 'DeviceID': '', 'WaterLevel': ''}
         if new_data:
+            raw_date = datetime.now()
+            rounded_date = raw_date.replace(microsecond=0) + timedelta(seconds=round(raw_date.microsecond / 1000000))
+
             DeviceID = int(new_data.get('DeviceID'))
-            Timestamp = new_data.get('Timestamp')
+            Timestamp = str(rounded_date)
             WaterLevel = new_data.get('WaterLevel')
             update(DeviceID, Timestamp, WaterLevel)
         
