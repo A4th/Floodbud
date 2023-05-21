@@ -2,6 +2,9 @@
 <html>
 <head>
     <title>FloodBud</title>
+    <!-- Bootstrap link -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="global.css">
     <script>
         function updateLastRefreshedTime() {
             var now = new Date();
@@ -10,27 +13,48 @@
         }
     </script>
 </head>
-<body onload="updateLastRefreshedTime()">
-    <h1>FloodBud</h1>
-    <p>Last refreshed: <span id="lastRefreshedTime"></span></p>
-    {% for device in devices %}
-        <h2>Sensor {{ loop.index }}</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Water Level</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for i in range(device.Timestamps|length) %}
-                    <tr>
-                        <td>{{ device.Timestamps[i] }}</td>
-                        <td>{{ device.WaterLevels[i] }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<body class="custom-bg" onload="updateLastRefreshedTime()">
+    <header>
+        <div class="container-lg px-3 py-3 pt-md-5 pb-md-4 mx-auto">
+            <h1 class="display-4">FloodBud</h1>
+            <p>Last refreshed: <span id="lastRefreshedTime"></span></p>
+            <p class="lead">A smart flood monitoring system that detects flood levels in real time and informs local residents and authorities when the levels get unsafe. As evacuation and delivery of relief goods are typically delayed when flood levels are high, it is crucial to inform both local authorities and residents in the early stages. With FloodBud, local authorities can quickly identify areas at risk of flash floods and respond rapidly to reduce the extensive damages on human life and property. Successfully implementing this project will help prevent severe damages to properties and, more importantly, save lives.</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="row">
+            {% for device in devices %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Sensor {{ loop.index }}</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Water Level</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(device.Timestamps|length) %}
+                                    <tr>
+                                        <td>{{ device.Timestamps[i] }}</td>
+                                        <td>{{ device.WaterLevels[i] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> 
+                </div>
+            </div>
     {% endfor %}
+        </div>
+    </div>
+
+    <!-- Bootstrap link -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>
