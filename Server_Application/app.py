@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-# sample initial data; can be removed later
+# sample initial data; can be removed later but keep array
 devices = [
     {
         'Timestamps': ["0", "1"], 
@@ -19,7 +19,7 @@ def index():
         new_data = request.get_json()
         # Input format: { 'DeviceID': '', 'WaterLevel': ''}
         if new_data:
-            raw_date = datetime.now()
+            raw_date = datetime.now() # Obtaining datetime
             rounded_date = raw_date.replace(microsecond=0) + timedelta(seconds=round(raw_date.microsecond / 1000000))
 
             DeviceID = int(new_data.get('DeviceID'))

@@ -2,9 +2,17 @@
 <html>
 <head>
     <title>FloodBud</title>
+    <script>
+        function updateLastRefreshedTime() {
+            var now = new Date();
+            var formattedTime = now.toLocaleString();
+            document.getElementById("lastRefreshedTime").textContent = formattedTime;
+        }
+    </script>
 </head>
-<body>
+<body onload="updateLastRefreshedTime()">
     <h1>FloodBud</h1>
+    <p>Last refreshed: <span id="lastRefreshedTime"></span></p>
     {% for device in devices %}
         <h2>Sensor {{ loop.index }}</h2>
         <table>
