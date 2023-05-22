@@ -13,7 +13,7 @@
 
 byte mac[] = {0xC0,0xDE,0xBA,0xBE,0x00,0x01};
 
-IPAddress server(192,168,1,2);
+IPAddress ip(192,168,1,2);
 EthernetClient client;
 String PostData = "someDataToPost";
 
