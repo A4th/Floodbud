@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 
 from flask_sqlalchemy import SQLAlchemy
-# from fuck import hehe
+
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
