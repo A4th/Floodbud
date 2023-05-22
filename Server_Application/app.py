@@ -1,7 +1,28 @@
 from flask import Flask, render_template, request
+
+from flask_sqlalchemy import SQLAlchemy
+# from fuck import hehe
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+
+# create the extension
+db = SQLAlchemy()
+# create the app
+app = Flask(__name__)
+# configure the SQLite database, relative to the app instance folder
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+# initialize the app with the extension
+db.init_app(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, unique=True, nullable=False)
+    email = db.Column(db.String)
+
+with app.app_context():
+    db.create_all()
+
 
 # sample initial data; can be removed later but keep array
 devices = [
