@@ -74,4 +74,4 @@ def update(DeviceID, Timestamp, WaterLevel):
         devices.append(new_device)
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.1', port=5050, debug=True, threaded=False)
+    app.run(host='192.168.1.3', port=5050, debug=True, threaded=False)
