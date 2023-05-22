@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request
+import serial
 
 from flask_sqlalchemy import SQLAlchemy
 
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+
+ser = serial.Serial('COM7', 9600)
 
 # create the extension
 db = SQLAlchemy()
@@ -31,6 +34,13 @@ devices = [
         'WaterLevels': ["Low", "Moderate"],
     }
 ]
+
+@app.route('/arduino', methods=['POST'])
+def arduino():
+    data = request.form.get('data')
+    ser.write(data.encode())
+    response = ser.readline().decode().strip()
+    return response
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
