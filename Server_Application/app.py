@@ -4,8 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from sqlalchemy import Sequence
 
-
-
 utc_plus_eight = pytz.timezone('Asia/Singapore')  # Replace 'Asia/Singapore' with the appropriate timezone identifier
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -35,14 +33,7 @@ class Records(db.Model):
 with app.app_context():
     db.create_all()
 
-
-# sample initial data; can be removed later but keep array
-devices = [
-    {
-        'Timestamps': ["0", "1"], 
-        'WaterLevels': ["Low", "Moderate"],
-    }
-]
+devices = []
 
 @app.route('/arduino', methods=['POST'])
 def arduino():
@@ -70,22 +61,28 @@ def index():
 
             db.session.add(record)
             db.session.commit()
-            # update(DeviceID, Timestamp, WaterLevel)
-        
+    update_db()
 
     return render_template('index.html', devices=devices)
 
-def update(DeviceID, Timestamp, WaterLevel):
-    if DeviceID < len(devices):
-        devices[DeviceID]['Timestamps'].append(Timestamp)
-        devices[DeviceID]['WaterLevels'].append(WaterLevel)
-        return
-    else:
-        new_device = {
-            'Timestamps': [Timestamp],
-            'WaterLevels': [WaterLevel],
-        }
-        devices.append(new_device)
+def update_db():
+    for device in sorted(list({record.deviceid for record in Records.query.all()})):
+        timestamps = []
+        readings = []
+        for entry in Records.query.filter_by(deviceid=device):
+            timestamps.append(entry.timestamp)
+            readings.append(entry.reading)
+
+        if len(devices) > device:
+            devices[device]['Timestamps'].extend(timestamps)
+            devices[device]['WaterLevels'].extend(readings) 
+        else:
+            new_device = {
+                'DeviceID': device,
+                'Timestamps': timestamps,
+                'WaterLevels': readings,
+            }
+            devices.insert(device, new_device)
 
 if __name__ == '__main__':
     app.run(host='192.168.1.3', port=5050, debug=True, threaded=False)
