@@ -1,13 +1,11 @@
-from flask import Flask, render_template, request
-import serial
-
+from flask import Flask, render_template, request,url_for, redirect
+import serial, os
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-from datetime import datetime, timedelta
-
+basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
-
-ser = serial.Serial('COM7', 9600)
+# ser = serial.Serial('COM7', 9600)
 
 # create the extension
 db = SQLAlchemy()
@@ -18,10 +16,15 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 # initialize the app with the extension
 db.init_app(app)
 
-class User(db.Model):
+class Records(db.Model):
+    #device id
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, unique=True, nullable=False)
-    email = db.Column(db.String)
+    timestamp = db.Column(db.DateTime(timezone=True), default=datetime.utcnow())
+
+    reading = db.Column(db.String, nullable = False)
+
+    def __repr__(self):
+        return f'<Device {self.id}: {self.reading} at {self.timestamp}>'
 
 with app.app_context():
     db.create_all()
@@ -51,7 +54,7 @@ def index():
         # Input format: { 'DeviceID': '', 'WaterLevel': ''}
         if new_data:
             raw_date = datetime.now() # Obtaining datetime
-            rounded_date = raw_date.replace(microsecond=0) + timedelta(seconds=round(raw_date.microsecond / 1000000))
+            rounded_date = raw_date.replace(microsecond=0) + datetime.timedelta(seconds=round(raw_date.microsecond / 1000000))
 
             DeviceID = int(new_data.get('DeviceID'))
             Timestamp = str(rounded_date)
