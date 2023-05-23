@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request,url_for, redirect
-import serial, os
+import serial, os,pytz
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
+
+
+utc_plus_eight = pytz.timezone('Asia/Singapore')  # Replace 'Asia/Singapore' with the appropriate timezone identifier
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
@@ -19,7 +22,7 @@ db.init_app(app)
 class Records(db.Model):
     #device id
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime(timezone=True), default=datetime.utcnow())
+    timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(utc_plus_eight))
 
     reading = db.Column(db.String, nullable = False)
 
@@ -53,13 +56,18 @@ def index():
         new_data = request.get_json()
         # Input format: { 'DeviceID': '', 'WaterLevel': ''}
         if new_data:
-            raw_date = datetime.now() # Obtaining datetime
-            rounded_date = raw_date.replace(microsecond=0) + datetime.timedelta(seconds=round(raw_date.microsecond / 1000000))
+            raw_date =datetime.utcnow() # Obtaining datetime
+            rounded_date = raw_date.replace(microsecond=0) + timedelta(seconds=round(raw_date.microsecond / 1000000))
 
             DeviceID = int(new_data.get('DeviceID'))
-            Timestamp = str(rounded_date)
+            # Timestamp = str(rounded_date)
             WaterLevel = new_data.get('WaterLevel')
-            update(DeviceID, Timestamp, WaterLevel)
+
+            record = Records(id = DeviceID,reading = WaterLevel)
+
+            db.session.add(record)
+            db.session.commit()
+            # update(DeviceID, Timestamp, WaterLevel)
         
 
     return render_template('index.html', devices=devices)
