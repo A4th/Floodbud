@@ -1,4 +1,9 @@
+// Newest Feature: Non-hardcoded values
+// Needs: Sensor Reading and Continuous Sending
+
 #include "etherShield.h"
+#include <string.h>
+
 /*infrared sensor setting*/
 #define INFRARED_IN 3
 #define LED_STATUS 5
@@ -19,6 +24,14 @@ static char client_ip[] = "192.168.1.1";
 // server settings - modify the service ip to your own server
 static uint8_t dest_ip[4]={192,168,1,3};
 static uint8_t dest_mac[6];
+
+//global variables
+int sensorValue = 0;
+int contentLength;
+char contentLengthArr[4];
+char deviceID[] = "0";
+char waterLevel[] = "Low";
+char jsonObject[50];
 
 enum CLIENT_STATE
 {  
@@ -81,16 +94,8 @@ void setup(){
   // intialize varible;
   syn_ack_timeout =0;
   client_data_ready = 0;
-  client_state = IDLE;
- 
- // infrared sensor initialization
-   pinMode(LED_STATUS, OUTPUT);  // infrad
-  digitalWrite(LED_STATUS,LOW);
-
-
-  pinMode(INFRARED_IN, INPUT);
+  client_state = IDLE;  
     
-
   ENABLE_EXTERNAL1_INTERRUPT();
   // tigger at INT1 rising edge
   EICRA = 0x0c;
@@ -106,13 +111,11 @@ void loop(){
      if(client_data_ready==1){
         		DISABLE_EXTERNAL1_INTERRUPT();
           	client_process();
-          	 digitalWrite(LED_STATUS, HIGH);
           	
         }
         else{
            delay(100);
          ENABLE_EXTERNAL1_INTERRUPT();
-         digitalWrite(LED_STATUS, LOW);
        }
        
 }
@@ -126,7 +129,7 @@ uint16_t gen_client_request(uint8_t *buf )
 {
 	uint16_t plen;
 	byte i;
-        
+  createJsonObject(jsonObject);
 	plen= es.ES_fill_tcp_data_p(buf,0, PSTR ( "POST / ") );
 
         
@@ -134,9 +137,10 @@ uint16_t gen_client_request(uint8_t *buf )
 	plen= es.ES_fill_tcp_data_p(buf, plen, PSTR ( "HTTP/1.1\r\n" ));
 	plen= es.ES_fill_tcp_data_p(buf, plen, PSTR ( "Host: 192.168.1.3\r\n" ));
 	plen= es.ES_fill_tcp_data_p(buf, plen, PSTR ( "Content-Type: application/json\r\n" ));
-  plen= es.ES_fill_tcp_data_p(buf, plen, PSTR ( "Content-Length: 39\r\n\r\n" ));
-
-  plen= es.ES_fill_tcp_data_p(buf,plen, PSTR ( "{\"DeviceID\": \"0\", \"WaterLevel\": \"High\"}"));
+  plen= es.ES_fill_tcp_data_p(buf, plen, PSTR ( "Content-Length: " ));
+  plen= es.ES_fill_tcp_data(buf,plen, contentLengthArr);
+  plen= es.ES_fill_tcp_data_p(buf, plen, PSTR ( "\r\n\r\n" ));
+  plen= es.ES_fill_tcp_data(buf,plen, jsonObject);
 	return plen;
 }
 
@@ -324,5 +328,25 @@ void client_process ( void )
 			client_data_ready =0;		// client data sent
 		}
   }       
+}
+
+void createJsonObject(char *jsonPlaceholder) {
+  String jsonString = "{";
+  
+  // Add DeviceID
+  jsonString += "\"DeviceID\": \"";
+  jsonString += deviceID;
+  jsonString += "\", ";
+
+  // Add WaterLevel
+  jsonString += "\"WaterLevel\": \"";
+  jsonString += waterLevel;
+  jsonString += "\"}";
+
+  contentLength = jsonString.length();  
+  sprintf(contentLengthArr, "%d", contentLength);
+
+  jsonString.toCharArray(jsonPlaceholder, 50);
+  return;
 }
 
