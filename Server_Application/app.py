@@ -2,6 +2,8 @@ from flask import Flask, render_template, request,url_for, redirect
 import serial, os,pytz
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+from sqlalchemy import Sequence
+
 
 
 utc_plus_eight = pytz.timezone('Asia/Singapore')  # Replace 'Asia/Singapore' with the appropriate timezone identifier
@@ -12,6 +14,7 @@ app = Flask(__name__)
 
 # create the extension
 db = SQLAlchemy()
+# db.dropall()
 # create the app
 app = Flask(__name__)
 # configure the SQLite database, relative to the app instance folder
@@ -21,13 +24,13 @@ db.init_app(app)
 
 class Records(db.Model):
     #device id
-    id = db.Column(db.Integer, primary_key=True)
+    readingid = db.Column(db.Integer, Sequence('reading_id_seq'), primary_key=True)
+    deviceid = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(utc_plus_eight))
-
     reading = db.Column(db.String, nullable = False)
 
     def __repr__(self):
-        return f'<Device {self.id}: {self.reading} at {self.timestamp}>'
+        return f'<Device {self.deviceid}: {self.reading} at {self.timestamp}, readingID = {self.readingid} >'
 
 with app.app_context():
     db.create_all()
@@ -56,14 +59,14 @@ def index():
         new_data = request.get_json()
         # Input format: { 'DeviceID': '', 'WaterLevel': ''}
         if new_data:
-            raw_date =datetime.utcnow() # Obtaining datetime
-            rounded_date = raw_date.replace(microsecond=0) + timedelta(seconds=round(raw_date.microsecond / 1000000))
+            # raw_date =datetime.utcnow() # Obtaining datetime
+            # rounded_date = raw_date.replace(microsecond=0) + timedelta(seconds=round(raw_date.microsecond / 1000000))
 
             DeviceID = int(new_data.get('DeviceID'))
             # Timestamp = str(rounded_date)
             WaterLevel = new_data.get('WaterLevel')
 
-            record = Records(id = DeviceID,reading = WaterLevel)
+            record = Records(deviceid = DeviceID,reading = WaterLevel)
 
             db.session.add(record)
             db.session.commit()
