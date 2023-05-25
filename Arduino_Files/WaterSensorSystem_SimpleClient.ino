@@ -251,7 +251,7 @@ void client_process ( void )
        }
        // after AVR send http request to server, server response by send data with PSHACK to AVR
        // AVR answer by send ACK
-       if ( buf [ TCP_FLAGS_P ] == (TCP_FLAG_ACK_V|TCP_FLAG_PUSH_V) )
+       if ( buf [ TCP_FLAGS_P ] == (TCP_FLAG_ACK_V | TCP_FLAG_PUSH_V))
        {
                plen = es.ES_tcp_get_dlength( (uint8_t*)&buf );
                // send ACK to answer PSHACK from server
