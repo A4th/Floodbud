@@ -59,7 +59,7 @@ void setup(){
    es.ES_enc28j60Init(mymac);
    es.ES_enc28j60clkout(2); // change clkout from 6.25MHz to 12.5MHz
    delay(10);
-        
+
 	/* Magjack leds configuration, see enc28j60 datasheet, page 11 */
 	// LEDA=greed LEDB=yellow
 	//
@@ -173,11 +173,11 @@ void client_process ( void )
         plen = es.ES_enc28j60PacketReceive(BUFFER_SIZE, buf);
 
 		// destination ip address was found on network
-        if ( plen!=0 )
+        if ( plen != 0 )
         {
             if ( es.ES_arp_packet_is_myreply_arp ( buf ) ){
                 client_state = ARP_REPLY;
-				syn_ack_timeout=0;
+				syn_ack_timeout = 0;
 				return;
             }
 		
@@ -188,8 +188,8 @@ void client_process ( void )
 		
 		if(syn_ack_timeout== 100) {  //timeout, server ip not found
 			client_state = IDLE;
-			client_data_ready =0;
-			syn_ack_timeout=0;
+			client_data_ready = 0;
+			syn_ack_timeout = 0;
 			return;
 		}	
     }
@@ -203,19 +203,12 @@ void client_process ( void )
 			dest_mac[i] = buf[ETH_SRC_MAC+i];
 		}
 	
-        es.ES_tcp_client_send_packet (
-                       buf,
-                       5050,
-                       my_port,
-                       TCP_FLAG_SYN_V,                 // flag
+        es.ES_tcp_client_send_packet (buf, 5050, my_port, TCP_FLAG_SYN_V,                 // flag
                        1,                                              // (bool)maximum segment size
                        1,                                              // (bool)clear sequence ack number
                        0,                                              // 0=use old seq, seqack : 1=new seq,seqack no data : new seq,seqack with data
                        0,                                              // tcp data length
-		      dest_mac,
-		      dest_ip
-                       );
-		
+		                   dest_mac, dest_ip);
 		client_state = SYNC_SENT;
 	}
   // get new packet
@@ -237,98 +230,74 @@ void client_process ( void )
        // check SYNACK flag, after AVR send SYN server response by send SYNACK to AVR
     if ( buf [ TCP_FLAGS_P ] == ( TCP_FLAG_SYN_V | TCP_FLAG_ACK_V ) )
     {
-
-               // send ACK to answer SYNACK
-
-               es.ES_tcp_client_send_packet (
-                       buf,
-                       5050,
-                       my_port,
-                       TCP_FLAG_ACK_V,                 // flag
-                       0,                                              // (bool)maximum segment size
-                       0,                                              // (bool)clear sequence ack number
-                       1,                                              // 0=use old seq, seqack : 1=new seq,seqack no data : new seq,seqack with data
-                       0,                                              // tcp data length
-						dest_mac,
-						dest_ip
-                       );
+      // send ACK to answer SYNACK
+      es.ES_tcp_client_send_packet (buf, 5050, my_port, TCP_FLAG_ACK_V,    // flag
+              0,                                              // (bool)maximum segment size
+              0,                                              // (bool)clear sequence ack number
+              1,                                              // 0=use old seq, seqack : 1=new seq,seqack no data : new seq,seqack with data
+              0,                                              // tcp data length
+              dest_mac, dest_ip);
                // setup http request to server
                plen = gen_client_request( buf );
                // send http request packet
                // send packet with PSHACK
-               es.ES_tcp_client_send_packet (
-                                       buf,
-                                       5050,                                             // destination port
-                                       my_port,                                   // source port
-                                       TCP_FLAG_ACK_V | TCP_FLAG_PUSH_V,                        // flag
-                                       0,                                              // (bool)maximum segment size
-                                       0,                                              // (bool)clear sequence ack number
-                                       0,                                              // 0=use old seq, seqack : 1=new seq,seqack no data : >1 new seq,seqack with data
+               es.ES_tcp_client_send_packet (buf, 5050, my_port, TCP_FLAG_ACK_V | TCP_FLAG_PUSH_V,                        // flag
+                                       0,                              // (bool)maximum segment size
+                                       0,                              // (bool)clear sequence ack number
+                                       0,                              // 0=use old seq, seqack : 1=new seq,seqack no data : >1 new seq,seqack with data
                                        plen,                           // tcp data length
-                                       dest_mac,
-									   dest_ip
-									   );
+                                       dest_mac, dest_ip);
                return;
        }
        // after AVR send http request to server, server response by send data with PSHACK to AVR
-       // AVR answer by send ACK and FINACK to server
+       // AVR answer by send ACK
        if ( buf [ TCP_FLAGS_P ] == (TCP_FLAG_ACK_V|TCP_FLAG_PUSH_V) )
        {
                plen = es.ES_tcp_get_dlength( (uint8_t*)&buf );
-
                // send ACK to answer PSHACK from server
-               es.ES_tcp_client_send_packet (
-                                       buf,
-                                       5050,                                             // destination port
-                                       my_port,                                   // source port
+               es.ES_tcp_client_send_packet (buf, 5050, my_port,        // destination port, source port
                                        TCP_FLAG_ACK_V,                  // flag
-                                       0,                                              // (bool)maximum segment size
-                                       0,                                              // (bool)clear sequence ack number
-                                       plen,                                           // 0=use old seq, seqack : 1=new seq,seqack no data : >1 new seq,seqack with data
-                                       0,                              // tcp data length
-				      dest_mac,
-				      dest_ip
-               );;
-               // send finack to disconnect from web server
-
-               es.ES_tcp_client_send_packet (
-                                       buf,
-                                       5050,                                             // destination port
-                                       my_port,                                   // source port
-                                       TCP_FLAG_FIN_V|TCP_FLAG_ACK_V,                  // flag
-                                       0,                                              // (bool)maximum segment size
-                                       0,                                              // (bool)clear sequence ack number
-                                       0,                                           // 0=use old seq, seqack : 1=new seq,seqack no data : >1 new seq,seqack with data
-                                       0,
-										dest_mac,
-										dest_ip
-				);
-
-               return;
-               
-       }
-       // answer FINACK from web server by send ACK to web server
-       if ( buf [ TCP_FLAGS_P ] == (TCP_FLAG_ACK_V|TCP_FLAG_FIN_V) )
-       {
-               // send ACK with seqack = 1
-               es.ES_tcp_client_send_packet(
-
-                                       buf,
-                                       5050,                                             // destination port
-                                       my_port,                                   // source port
-                                       TCP_FLAG_ACK_V,                 // flag
-                                       0,                                              // (bool)maximum segment size
-                                       0,                                              // (bool)clear sequence ack number
-                                       1,                                              // 0=use old seq, seqack : 1=new seq,seqack no data : >1 new seq,seqack with data
-                                       0,
-									   dest_mac,
-									   dest_ip
-				);
-			client_state = IDLE;		// return to IDLE state
-			client_data_ready =0;		// client data sent
-		}
+                                       0,                               // (bool)maximum segment size
+                                       0,                               // (bool)clear sequence ack number
+                                       plen,                            // 0=use old seq, seqack : 1=new seq,seqack no data : >1 new seq,seqack with data
+                                       0,                               // tcp data length
+				      dest_mac, dest_ip);
+              return;
+       }      
   }       
 }
+
+
+void connectionTeardown(void){
+// send finack to disconnect from web server
+  if ( buf [ TCP_FLAGS_P ] == (TCP_FLAG_ACK_V|TCP_FLAG_PUSH_V) )
+    {
+      // send ACK with seqack = 1
+      es.ES_tcp_client_send_packet(buf, 5050, my_port,      // destination port, source port
+            TCP_FLAG_ACK_V,                                 // flag
+            0,                                              // (bool)maximum segment size
+            0,                                              // (bool)clear sequence ack number
+            1,                                              // 0=use old seq, seqack : 1=new seq,seqack no data : >1 new seq,seqack with data
+            0,
+            dest_mac, dest_ip);
+			client_state = IDLE;		// return to IDLE state
+			client_data_ready = 0;		// client data sent
+    }
+    if ( buf [ TCP_FLAGS_P ] == (TCP_FLAG_ACK_V|TCP_FLAG_FIN_V) )
+       {
+        // send ACK with seqack = 1
+        es.ES_tcp_client_send_packet(buf, 5050, my_port,     // destination port, source port
+            TCP_FLAG_ACK_V,                                 // flag
+            0,                                              // (bool)maximum segment size
+            0,                                              // (bool)clear sequence ack number
+            1,                                              // 0=use old seq, seqack : 1=new seq,seqack no data : >1 new seq,seqack with data
+            0,
+            dest_mac, dest_ip);
+			client_state = IDLE;		// return to IDLE state
+			client_data_ready = 0;		// client data sent
+		}
+    return;
+  }       
 
 void createJsonObject(char *jsonPlaceholder) {
   String jsonString = "{";
