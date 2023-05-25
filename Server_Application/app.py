@@ -94,6 +94,7 @@ def update_db():
         else:
             new_device = {
                 'DeviceID': device,
+                'Location': entry.location,
                 'Timestamps': timestamps,
                 'WaterLevels': readings,
             }
