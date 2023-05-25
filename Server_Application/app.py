@@ -66,6 +66,7 @@ def index():
     return render_template('index.html', devices=devices)
 
 def update_db():
+    devices.clear()
     for device in sorted(list({record.deviceid for record in Records.query.all()})):
         timestamps = []
         readings = []
