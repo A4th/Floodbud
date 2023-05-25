@@ -3,6 +3,7 @@ import serial, os,pytz
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from sqlalchemy import Sequence
+from sqlalchemy import func
 
 utc_plus_eight = pytz.timezone('Asia/Singapore')  # Replace 'Asia/Singapore' with the appropriate timezone identifier
 
@@ -20,15 +21,28 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 # initialize the app with the extension
 db.init_app(app)
 
+class DeviceLocation(db.Model):
+    __tablename__ = 'device_location'
+    deviceid = db.Column(db.Integer, primary_key=True)
+    location = db.Column(db.String(100), nullable=False)
+    def __repr__(self):
+        return self.location
+
 class Records(db.Model):
     #device id
+    __tablename__ = 'water_level'
     readingid = db.Column(db.Integer, Sequence('reading_id_seq'), primary_key=True)
-    deviceid = db.Column(db.Integer)
+    deviceid = db.Column(db.Integer, db.ForeignKey('device_location.deviceid'))
     timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(utc_plus_eight))
     reading = db.Column(db.String, nullable = False)
+    location = db.relationship('DeviceLocation', backref='water_level', lazy=True)
+
 
     def __repr__(self):
-        return f'<Device {self.deviceid}: {self.reading} at {self.timestamp}, readingID = {self.readingid} >'
+        return f'<Device {self.deviceid}: {self.reading} at {self.timestamp}, readingID = {self.readingid}, location = {self.location}>'
+
+
+
 
 with app.app_context():
     db.create_all()
@@ -66,6 +80,7 @@ def index():
     return render_template('index.html', devices=devices)
 
 def update_db():
+    devices.clear()
     for device in sorted(list({record.deviceid for record in Records.query.all()})):
         timestamps = []
         readings = []
