@@ -48,7 +48,7 @@
                             <tbody>
                                 {% for i in range(device.Timestamps|length) %}
                                     <tr>
-                                        <td>{{ device.Timestamps[i] }}</td>
+                                        <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
                                         <td>{{ device.WaterLevels[i] }}</td>
                                     </tr>
                                 {% endfor %}
