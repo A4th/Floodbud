@@ -47,10 +47,27 @@
                             </thead>
                             <tbody>
                                 {% for i in range(device.Timestamps|length) %}
-                                    <tr>
-                                        <td>{{ device.Timestamps[i] }}</td>
-                                        <td>{{ device.WaterLevels[i] }}</td>
-                                    </tr>
+                                    {% if device.WaterLevels[i] == "Low" %}
+                                        <tr style="background-color: #baffc9">
+                                            <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ device.WaterLevels[i] }}</td>
+                                        </tr>
+                                    {% elif device.WaterLevels[i] == "Moderate" %}
+                                        <tr style="background-color: #ffffba">
+                                            <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ device.WaterLevels[i] }}</td>
+                                        </tr>
+                                    {% elif device.WaterLevels[i] == "High" %}
+                                        <tr style="background-color: #ffdfba">
+                                            <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ device.WaterLevels[i] }}</td>
+                                        </tr>
+                                    {% elif device.WaterLevels[i] == "Very High" %}
+                                        <tr style="background-color: #ffb3ba">
+                                            <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ device.WaterLevels[i] }}</td>
+                                        </tr>
+                                    {% endif %}
                                 {% endfor %}
                             </tbody>
                         </table>
