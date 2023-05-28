@@ -67,6 +67,11 @@
                                             <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
                                             <td>{{ device.WaterLevels[i] }}</td>
                                         </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ device.WaterLevels[i] }}</td>
+                                        </tr>
                                     {% endif %}
                                 {% endfor %}
                             </tbody>

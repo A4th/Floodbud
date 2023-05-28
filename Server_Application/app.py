@@ -24,7 +24,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 # initialize the app with the extension
 db.init_app(app)
 
-
 class DeviceLocation(db.Model):
     __tablename__ = 'device_location'
     deviceid = db.Column(db.Integer, primary_key=True)
@@ -84,6 +83,7 @@ def index():
             db.session.add(record)
             db.session.commit()
     update_db()
+    print(devices)
 
     return render_template('index.html', devices=devices)
 
@@ -95,7 +95,7 @@ def update_db():
         readings = []
         for entry in Records.query.filter_by(deviceid=device):
             timestamps.append(entry.timestamp)
-            readings.append(entry.reading)
+            readings.append(entry.reading.title())
 
         if len(devices) > device:
             devices[device]['Timestamps'].extend(timestamps)
