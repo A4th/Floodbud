@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request,url_for, redirect
-import serial, os,pytz
+from flask import Flask, render_template, request, url_for, redirect
+import serial
+import os
+import pytz
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from sqlalchemy import Sequence
 from sqlalchemy import func
 
-utc_plus_eight = pytz.timezone('Asia/Singapore')  # Replace 'Asia/Singapore' with the appropriate timezone identifier
+# Replace 'Asia/Singapore' with the appropriate timezone identifier
+utc_plus_eight = pytz.timezone('Asia/Singapore')
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
@@ -21,27 +24,30 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 # initialize the app with the extension
 db.init_app(app)
 
+
 class DeviceLocation(db.Model):
     __tablename__ = 'device_location'
     deviceid = db.Column(db.Integer, primary_key=True)
     location = db.Column(db.String(100), nullable=False)
+
     def __repr__(self):
         return self.location
 
-class Records(db.Model):
-    #device id
-    __tablename__ = 'water_level'
-    readingid = db.Column(db.Integer, Sequence('reading_id_seq'), primary_key=True)
-    deviceid = db.Column(db.Integer, db.ForeignKey('device_location.deviceid'))
-    timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(utc_plus_eight))
-    reading = db.Column(db.String, nullable = False)
-    location = db.relationship('DeviceLocation', backref='water_level', lazy=True)
 
+class Records(db.Model):
+    # device id
+    __tablename__ = 'water_level'
+    readingid = db.Column(db.Integer, Sequence(
+        'reading_id_seq'), primary_key=True)
+    deviceid = db.Column(db.Integer, db.ForeignKey('device_location.deviceid'))
+    timestamp = db.Column(db.DateTime(timezone=True),
+                          default=lambda: datetime.now(utc_plus_eight))
+    reading = db.Column(db.String, nullable=False)
+    location = db.relationship(
+        'DeviceLocation', backref='water_level', lazy=True)
 
     def __repr__(self):
         return f'<Device {self.deviceid}: {self.reading} at {self.timestamp}, readingID = {self.readingid}, location = {self.location}>'
-
-
 
 
 with app.app_context():
@@ -49,12 +55,14 @@ with app.app_context():
 
 devices = []
 
+
 @app.route('/arduino', methods=['POST'])
 def arduino():
     data = request.form.get('data')
     ser.write(data.encode())
     response = ser.readline().decode().strip()
     return response
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -71,13 +79,14 @@ def index():
             # Timestamp = str(rounded_date)
             WaterLevel = new_data.get('WaterLevel')
 
-            record = Records(deviceid = DeviceID,reading = WaterLevel)
+            record = Records(deviceid=DeviceID, reading=WaterLevel)
 
             db.session.add(record)
             db.session.commit()
     update_db()
 
     return render_template('index.html', devices=devices)
+
 
 def update_db():
     devices.clear()
@@ -90,7 +99,7 @@ def update_db():
 
         if len(devices) > device:
             devices[device]['Timestamps'].extend(timestamps)
-            devices[device]['WaterLevels'].extend(readings) 
+            devices[device]['WaterLevels'].extend(readings)
         else:
             new_device = {
                 'DeviceID': device,
@@ -99,6 +108,7 @@ def update_db():
                 'WaterLevels': readings,
             }
             devices.insert(device, new_device)
+
 
 if __name__ == '__main__':
     app.run(host='192.168.1.3', port=5050, debug=True, threaded=False)
