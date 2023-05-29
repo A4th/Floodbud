@@ -46,7 +46,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for i in range(device.Timestamps|length) %}
+                                {% for i in range(10) %}
                                     {% if device.WaterLevels[i] == "Low" %}
                                         <tr style="background-color: #baffc9">
                                             <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
@@ -69,8 +69,8 @@
                                         </tr>
                                     {% else %}
                                         <tr>
-                                            <td>{{ device.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
-                                            <td>{{ device.WaterLevels[i] }}</td>
+                                            <td style="color: white">NULL</td>
+                                            <td style="color: white">NULL</td>
                                         </tr>
                                     {% endif %}
                                 {% endfor %}
