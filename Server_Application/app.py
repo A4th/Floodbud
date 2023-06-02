@@ -95,8 +95,8 @@ def update_db():
         timestamps = []
         readings = []
         for entry in Records.query.filter_by(deviceid=device):
-            timestamps.append(entry.timestamp)
-            readings.append(entry.reading.title())
+            timestamps.insert(0, entry.timestamp)
+            readings.insert(0, entry.reading.title())
 
         if len(devices) > device:
             devices[device]['Timestamps'].extend(timestamps)
