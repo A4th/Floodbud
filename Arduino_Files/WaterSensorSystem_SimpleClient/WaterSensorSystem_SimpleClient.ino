@@ -13,7 +13,7 @@
 #define MODERATESENSOR A0
 #define HIGHSENSOR A1
 #define VERYHIGHSENSOR A2
-#define THRESHOLD 100
+#define THRESHOLD 670
 
 #define LOW "LOW"
 #define MODERATE "MODERATE"
@@ -74,6 +74,7 @@ EtherShield es = EtherShield();
 
 void setup()
 {
+  Serial.begin(9600);
   getSensorData();
 
   /*initialize enc28j60*/
@@ -126,7 +127,6 @@ void setup()
 
 void loop()
 {
-  getSensorData();
   if (client_data_ready == 1)
   {
     DISABLE_EXTERNAL1_INTERRUPT();
@@ -138,6 +138,7 @@ void loop()
     ENABLE_EXTERNAL1_INTERRUPT();
   }
   if (millis() > 10000) {
+    getSensorData();
     resetFunc();
   }
 }
@@ -387,25 +388,40 @@ void sendSensorDataPacket(void)
 
 void getSensorData(void)
 {
-  // moderate_sensor_value = analogRead(MODERATESENSOR);
-  // high_sensor_value = analogRead(HIGHSENSOR);
-  // veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
+  moderate_sensor_value = analogRead(MODERATESENSOR);
+  high_sensor_value = analogRead(HIGHSENSOR);
+  veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
 
-  // if (moderate_sensor_value < THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD)
-  // {
-  //   strncpy(waterLevel,LOW,sizeof(waterLevel)); 
-  // }
-  // else if (high_sensor_value < THRESHOLD)
-  // {
-  //   strncpy(waterLevel,MODERATE,sizeof(waterLevel)); 
-  // }
-  // else if (veryhigh_sensor_value < THRESHOLD)
-  // {
-  //   strncpy(waterLevel,HIGH,sizeof(waterLevel)); 
-  // }
-  // else
-  // {
-  //   strncpy(waterLevel,VERYHIGH,sizeof(waterLevel)); 
-  // }
-  strncpy(waterLevel,HIGH,sizeof(waterLevel)); 
+  if (moderate_sensor_value < THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD)
+  {
+    strncpy(waterLevel,LOW,sizeof(waterLevel)); 
+  }
+  else if (high_sensor_value < THRESHOLD)
+  {
+    strncpy(waterLevel,MODERATE,sizeof(waterLevel)); 
+  }
+  else if (veryhigh_sensor_value < THRESHOLD)
+  {
+    strncpy(waterLevel,HIGH,sizeof(waterLevel)); 
+  }
+  else
+  {
+    strncpy(waterLevel,VERYHIGH,sizeof(waterLevel)); 
+  }
+  printValues();
+  // strncpy(waterLevel,HIGH,sizeof(waterLevel)); 
+}
+
+void printValues() {
+
+    Serial.println("-----START OF READING-----");
+
+    Serial.print("Moderate Sensor: ");
+    Serial.println(moderate_sensor_value);
+    Serial.print("High Sensor: ");
+    Serial.println(high_sensor_value);
+    Serial.print("Very High Sensor: ");
+    Serial.println(veryhigh_sensor_value);
+
+    Serial.println("------END OF READING------");
 }
