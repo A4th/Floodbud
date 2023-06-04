@@ -32,7 +32,6 @@ class DeviceLocation(db.Model):
     def __repr__(self):
         return self.location
 
-
 class Records(db.Model):
     # device id
     __tablename__ = 'water_level'
@@ -62,10 +61,12 @@ def arduino():
     response = ser.readline().decode().strip()
     return response
 
-@app.route('/location')
+@app.route('/location', methods=['GET', 'POST'])
 def location():
     location = request.args.get('location')
-    return render_template('location.html', location=location)
+    if location != 'None':
+        id = DeviceLocation.query.filter_by(location=location).first().deviceid
+    return render_template('location.html', location=location, readings=devices[id])
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
