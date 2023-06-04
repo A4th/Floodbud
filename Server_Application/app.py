@@ -64,7 +64,8 @@ def arduino():
 
 @app.route('/location')
 def location():
-    return render_template('location.html')
+    location = request.args.get('location')
+    return render_template('location.html', location=location)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
