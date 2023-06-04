@@ -64,8 +64,7 @@ def arduino():
 @app.route('/location', methods=['GET', 'POST'])
 def location():
     location = request.args.get('location')
-    if location != 'None':
-        id = DeviceLocation.query.filter_by(location=location).first().deviceid
+    id = DeviceLocation.query.filter_by(location=location).first().deviceid
     return render_template('location.html', location=location, readings=devices[id])
 
 @app.route('/', methods=['GET', 'POST'])
@@ -88,14 +87,13 @@ def index():
             db.session.add(record)
             db.session.commit()
     update_db()
-    print(devices)
 
     return render_template('index.html', devices=devices)
 
 
 def update_db():
     devices.clear()
-    for device in sorted(list({record.deviceid for record in Records.query.all()})):
+    for device in range(max(list({record.deviceid for record in Records.query.all()}))):
         timestamps = []
         readings = []
         for entry in Records.query.filter_by(deviceid=device):
@@ -108,7 +106,7 @@ def update_db():
         else:
             new_device = {
                 'DeviceID': device,
-                'Location': entry.location,
+                'Location': DeviceLocation.query.filter_by(deviceid=device).first(),
                 'Timestamps': timestamps,
                 'WaterLevels': readings,
             }

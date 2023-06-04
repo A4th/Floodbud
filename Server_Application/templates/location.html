@@ -45,26 +45,26 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for i in readings.Timestamps %}
-                                    {% if reading.WaterLevels == "Low" %}
+                                {% for i in range(readings.Timestamps|length) %}
+                                    {% if readings.WaterLevels[i] == "Low" %}
                                         <tr style="background-color: #baffc9">
-                                            <td>{{ reading.Timestamps.strftime("%B %d, %Y %I:%M:%S %p") }}</td>
-                                            <td>{{ reading.WaterLevels }}</td>
+                                            <td>{{ readings.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ readings.WaterLevels[i] }}</td>
                                         </tr>
-                                    {% elif reading.WaterLevels == "Moderate" %}
+                                    {% elif readings.WaterLevels[i] == "Moderate" %}
                                         <tr style="background-color: #ffffba">
-                                            <td>{{ reading.Timestamps.strftime("%B %d, %Y %I:%M:%S %p") }}</td>
-                                            <td>{{ reading.WaterLevels }}</td>
+                                            <td>{{ readings.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ readings.WaterLevels[i] }}</td>
                                         </tr>
-                                    {% elif reading.WaterLevels == "High" %}
+                                    {% elif readings.WaterLevels[i] == "High" %}
                                         <tr style="background-color: #ffdfba">
-                                            <td>{{ reading.Timestamps.strftime("%B %d, %Y %I:%M:%S %p") }}</td>
-                                            <td>{{ reading.WaterLevels }}</td>
+                                            <td>{{ readings.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ readings.WaterLevels[i] }}</td>
                                         </tr>
-                                    {% elif reading.WaterLevels == "Very High" %}
+                                    {% elif readings.WaterLevels[i] == "Very High" %}
                                         <tr style="background-color: #ffb3ba">
-                                            <td>{{ reading.Timestamps.strftime("%B %d, %Y %I:%M:%S %p") }}</td>
-                                            <td>{{ reading.WaterLevels }}</td>
+                                            <td>{{ readings.Timestamps[i].strftime("%B %d, %Y %I:%M:%S %p") }}</td>
+                                            <td>{{ readings.WaterLevels[i] }}</td>
                                         </tr>
                                     {% else %}
                                         <tr>
