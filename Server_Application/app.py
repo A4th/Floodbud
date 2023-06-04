@@ -62,6 +62,9 @@ def arduino():
     response = ser.readline().decode().strip()
     return response
 
+@app.route('/location')
+def location():
+    return render_template('location.html')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

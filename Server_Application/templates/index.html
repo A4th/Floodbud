@@ -11,6 +11,9 @@
             var formattedTime = now.toLocaleString();
             document.getElementById("lastRefreshedTime").textContent = formattedTime;
         }
+        function redirectToLocation(location) {
+            window.location.href = "location?location=" + encodeURIComponent(location);
+        }
     </script>
 </head>
 <body onload="updateLastRefreshedTime()">
@@ -35,7 +38,7 @@
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2>{{ device.Location }}</h2>
+                        <h2><a href="#" onclick='redirectToLocation("{{ device.Location}}")'>{{ device.Location }}</a></h2>
                     </div>
                     <div class="card-body">
                         <table class="table">
