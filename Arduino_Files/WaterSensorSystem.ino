@@ -1,73 +1,55 @@
-// This File is used to detect the water level within a singular sensor
-// This will be used in case we would want to change "Trigger" Values in the actual system
+#include <SPI.h>
+#include <UIP
+Ethernet.h>
 
-#define POWER_PIN  7
+// replace the MAC address below by the MAC address printed on a sticker on the Arduino Shield 2
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-#define MODERATESENSOR A5
-#define HIGHSENSOR A6
-#define VERYHIGHSENSOR A7
+EthernetClient client;
 
-#define THRESHOLD 100
-
-int moderate_sensor_value = 0; // variable to store WaterSensor1's value
-int high_sensor_value = 0; // variable to store WaterSensor1's value
-int veryhigh_sensor_value = 0; // variable to store WaterSensor1's value
-
-int level = 0; // variable to store the water level
+int    HTTP_PORT   = 80;
+String HTTP_METHOD = "POST";
+char   SERVER_ADD[] = "floodbud2.onrender.com";
+String PATH_NAME   = "/";
 
 void setup() {
   Serial.begin(9600);
+  // initialize the Ethernet shield using DHCP:
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to obtaining an IP address using DHCP");
+    while(true);
+  }
+
+  // connect to web server on port 80:
+  if(client.connect(SERVER_ADD, HTTP_PORT)) {
+    // if connected:
+    Serial.println("Connected to server");
+    // make a HTTP request:
+    // send HTTP header
+    client.println(HTTP_METHOD + " " + PATH_NAME + " HTTP/1.1");
+    client.println("Host: " + String(SERVER_ADD));
+    client.println("Content-Type: application/json");
+    client.print("Content-Length: "); // end HTTP header'
+    client.println("39\r\n");
+    client.println("{\"DeviceID\": \"1\", \"WaterLevel\": \"High\"}");
+
+    while(client.connected()) {
+      if(client.available()){
+        // read an incoming byte from the server and print it to serial monitor:
+        char c = client.read();
+        Serial.print(c);
+      }
+    }
+
+    // the server's disconnected, stop the client:
+    client.stop();
+    Serial.println();
+    Serial.println("disconnected");
+  } else {// if not connected:
+    Serial.println("connection failed");
+  }
 }
 
 void loop() {
-    //moderate_sensor_value = analogRead(MODERATESENSOR);
-    //high_sensor_value = analogRead(HIGHSENSOR);
-    //veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
-    
-    if (moderate_sensor_value < THRESHOLD && level != 1){
-        Serial.println("-----START OF READING-----");
-        Serial.println("Water Level: Low");
-        printValues();
-        Serial.println("------END OF READING------");
-        level = 1;
 
-        moderate_sensor_value = 101;
-    }
-    else if (moderate_sensor_value >= THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD && level != 2) {
-        Serial.println("-----START OF READING-----");
-        Serial.println("Water Level: Moderate");
-        printValues();
-        Serial.println("------END OF READING------");
-        level = 2;
-
-        high_sensor_value = 101;
-    }
-    else if (moderate_sensor_value >= THRESHOLD && high_sensor_value >= THRESHOLD && veryhigh_sensor_value < THRESHOLD && level != 3) {
-        Serial.println("-----START OF READING-----");
-        Serial.println("Water Level: High");
-        printValues();
-        Serial.println("------END OF READING------");
-        level = 3;
-
-        veryhigh_sensor_value = 101;
-    }
-    else if (moderate_sensor_value >= THRESHOLD && high_sensor_value >= THRESHOLD && veryhigh_sensor_value >= THRESHOLD && level != 4){
-        Serial.println("-----START OF READING-----");
-        Serial.println("Water Level: Very High");
-        printValues();
-        Serial.println("------END OF READING------");
-        level = 4;
-    }
-    
-    delay(1000);
-}
-
-void printValues() {
-
-    Serial.print("Moderate Sensor: ");
-    Serial.println(moderate_sensor_value);
-    Serial.print("High Sensor: ");
-    Serial.println(high_sensor_value);
-    Serial.print("Very High Sensor: ");
-    Serial.println(veryhigh_sensor_value);
 }

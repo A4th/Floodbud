@@ -13,7 +13,8 @@
 #define MODERATESENSOR A0
 #define HIGHSENSOR A1
 #define VERYHIGHSENSOR A2
-#define THRESHOLD 670
+#define THRESHOLD 100
+
 #define MODERATELED 7
 #define HIGHLED 6
 #define VERYHIGHLED 5
@@ -79,6 +80,9 @@ void setup()
 {
   Serial.begin(9600);
   getSensorData();
+  pinMode(MODERATELED, OUTPUT);
+  pinMode(HIGHLED, OUTPUT);
+  pinMode(VERYHIGHLED, OUTPUT);
 
   /*initialize enc28j60*/
   es.ES_enc28j60Init(mymac);
@@ -130,11 +134,11 @@ void setup()
 
 void loop()
 {
+  LED_process();
   if (client_data_ready == 1)
   {
     DISABLE_EXTERNAL1_INTERRUPT();
     client_process();
-    LED_process();
   }
   else
   {
@@ -395,7 +399,6 @@ void getSensorData(void)
   moderate_sensor_value = analogRead(MODERATESENSOR);
   high_sensor_value = analogRead(HIGHSENSOR);
   veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
-
   if (moderate_sensor_value < THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD)
   {
     strncpy(waterLevel,LOW,sizeof(waterLevel)); 
@@ -432,20 +435,32 @@ void printValues() {
 
 
 void LED_process(void){
-  if (waterLevel == LOW):
-    digitalWrite(MODERATELED, LOW);
-    digitalWrite(HIGHLED, LOW);
-    digitalWrite(VERYHIGHLED, LOW);
-  else if (waterLevel == MODERATE);
-    digitalWrite(MODERATELED, HIGH);
-    digitalWrite(HIGHLED, LOW);
-    digitalWrite(VERYHIGHLED, LOW);
-  else if (waterLevel == HIGH);
-    digitalWrite(MODERATELED, LOW);
-    digitalWrite(HIGHLED, HIGH);
-    digitalWrite(VERYHIGHLED, LOW);
-  else if (waterLevel == HIGH);
-    digitalWrite(MODERATELED, LOW);
-    digitalWrite(HIGHLED, LOW);
-    digitalWrite(VERYHIGHLED, HIGH);
+  Serial.print(waterLevel);
+  if (String(waterLevel) == "LOW"){
+    Serial.print("WaterLevel == LOW");
+    digitalWrite(MODERATELED, 0);
+    digitalWrite(HIGHLED, 0);
+    digitalWrite(VERYHIGHLED, 0);
+  }
+
+  else if (String(waterLevel) == "MODERATE"){
+    Serial.print("WaterLevel == MODERATE");
+    digitalWrite(MODERATELED, 1);
+    digitalWrite(HIGHLED, 0);
+    digitalWrite(VERYHIGHLED, 0);
+  }
+
+  else if (String(waterLevel) == "HIGH"){
+    Serial.print("WaterLevel == HIGH");
+    digitalWrite(MODERATELED, 0);
+    digitalWrite(HIGHLED, 1);
+    digitalWrite(VERYHIGHLED, 0);
+  }
+
+  else if (String(waterLevel) == "VERY HIGH"){
+    Serial.print("WaterLevel == VERY HIGH");
+    digitalWrite(MODERATELED, 0);
+    digitalWrite(HIGHLED, 0);
+    digitalWrite(VERYHIGHLED, 1);
+  }
 }
