@@ -64,7 +64,34 @@ def arduino():
 @app.route('/location', methods=['GET', 'POST'])
 def location():
     location = request.args.get('location')
+    print(location)
     id = DeviceLocation.query.filter_by(location=location).first().deviceid
+
+    selected_date = request.args.get('day')
+    if selected_date != None:
+        print("hello")
+        selected_date = request.args.get('day')
+        print(selected_date)
+        selected_date = datetime.strptime(selected_date, '%Y-%m-%d')
+
+        day_start = selected_date.replace(hour=0, minute=0, second=0)
+        day_end = day_start + timedelta(days=1)
+
+        records = Records.query.filter(Records.deviceid == id, Records.timestamp >= day_start, Records.timestamp < day_end)
+
+        timestamps = []
+        readings = []
+        for entry in records:
+            timestamps.insert(0, entry.timestamp)
+            readings.insert(0, entry.reading.title())
+        device_day = {
+            'DeviceID': id,
+            'Location': location,
+            'Timestamps': timestamps,
+            'WaterLevels': readings,
+        }
+        return render_template('location.html', location=location, readings=device_day)
+
     return render_template('location.html', location=location, readings=devices[id])
 
 @app.route('/', methods=['GET', 'POST'])
