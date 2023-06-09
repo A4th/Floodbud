@@ -54,7 +54,6 @@ with app.app_context():
 
 devices = []
 
-
 @app.route('/arduino', methods=['POST'])
 def arduino():
     data = request.form.get('data')
