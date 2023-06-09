@@ -11,10 +11,11 @@
             var now = new Date();
             var formattedTime = now.toLocaleString();
             document.getElementById("lastRefreshedTime").textContent = formattedTime;
-
-            // var startDateInput = document.getElementById("selectedDate");
-            // var today = new Date().toISOString().split('T')[0];
-            // startDateInput.value = today;
+            
+            const searchParams = new URLSearchParams(window.location.search);
+            const day = searchParams.get("day");
+            var selectedDateInput = document.getElementById("selectedDate");
+            selectedDateInput.value = day;
         }
         function redirectToDay() {
             var selectedDate = document.getElementById("selectedDate").value;

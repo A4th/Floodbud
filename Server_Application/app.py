@@ -69,7 +69,6 @@ def location():
 
     selected_date = request.args.get('day')
     if selected_date != None:
-        print("hello")
         selected_date = request.args.get('day')
         print(selected_date)
         selected_date = datetime.strptime(selected_date, '%Y-%m-%d')
