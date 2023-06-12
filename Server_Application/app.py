@@ -119,24 +119,26 @@ def index():
 
 def update_db():
     devices.clear()
-    for device in range(max(list({record.deviceid for record in Records.query.all()}))):
-        timestamps = []
-        readings = []
-        for entry in Records.query.filter_by(deviceid=device):
-            timestamps.insert(0, entry.timestamp)
-            readings.insert(0, entry.reading.title())
+    records = Records.query.all()
+    if records:
+        for device in range(max(list({record.deviceid for record in records}))):
+            timestamps = []
+            readings = []
+            for entry in Records.query.filter_by(deviceid=device):
+                timestamps.insert(0, entry.timestamp)
+                readings.insert(0, entry.reading.title())
 
-        if len(devices) > device:
-            devices[device]['Timestamps'].extend(timestamps)
-            devices[device]['WaterLevels'].extend(readings)
-        else:
-            new_device = {
-                'DeviceID': device,
-                'Location': DeviceLocation.query.filter_by(deviceid=device).first(),
-                'Timestamps': timestamps,
-                'WaterLevels': readings,
-            }
-            devices.insert(device, new_device)
+            if len(devices) > device:
+                devices[device]['Timestamps'].extend(timestamps)
+                devices[device]['WaterLevels'].extend(readings)
+            else:
+                new_device = {
+                    'DeviceID': device,
+                    'Location': DeviceLocation.query.filter_by(deviceid=device).first(),
+                    'Timestamps': timestamps,
+                    'WaterLevels': readings,
+                }
+                devices.insert(device, new_device)
 
 
 if __name__ == '__main__':
