@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-import serial
 import os
 import pytz
 from flask_sqlalchemy import SQLAlchemy
@@ -12,11 +11,10 @@ utc_plus_eight = pytz.timezone('Asia/Singapore')
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
-# ser = serial.Serial('COM7', 9600)
 
 # create the extension
 db = SQLAlchemy()
-# db.dropall()
+
 # create the app
 app = Flask(__name__)
 # configure the SQLite database, relative to the app instance folder
@@ -52,13 +50,6 @@ with app.app_context():
     db.create_all()
 
 devices = []
-
-@app.route('/arduino', methods=['POST'])
-def arduino():
-    data = request.form.get('data')
-    ser.write(data.encode())
-    response = ser.readline().decode().strip()
-    return response
 
 @app.route('/location', methods=['GET', 'POST'])
 def location():
@@ -100,11 +91,8 @@ def index():
         new_data = request.get_json()
         # Input format: { 'DeviceID': '', 'WaterLevel': ''}
         if new_data:
-            # raw_date =datetime.utcnow() # Obtaining datetime
-            # rounded_date = raw_date.replace(microsecond=0) + timedelta(seconds=round(raw_date.microsecond / 1000000))
 
             DeviceID = int(new_data.get('DeviceID'))
-            # Timestamp = str(rounded_date)
             WaterLevel = new_data.get('WaterLevel')
 
             record = Records(deviceid=DeviceID, reading=WaterLevel)
