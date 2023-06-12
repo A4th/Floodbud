@@ -15,14 +15,16 @@ int moderate_sensor_value = 0;
 int high_sensor_value = 0;
 int veryhigh_sensor_value = 0;
 
+
+
 #define MODERATESENSOR A2
 #define HIGHSENSOR A1
 #define VERYHIGHSENSOR A0
 #define THRESHOLD 100
 
-#define MODERATELED 3
-#define HIGHLED 4
-#define VERYHIGHLED 5
+#define MODERATELED 5
+#define HIGHLED 6
+#define VERYHIGHLED 7
 
 void (*resetFunc)(void) = 0;
 
@@ -37,9 +39,12 @@ void setup()
 {
   Serial.begin(9600);
   // initialize the Ethernet shield using DHCP:
+  pinMode(MODERATELED, OUTPUT);
+  pinMode(HIGHLED, OUTPUT);
+  pinMode(VERYHIGHLED, OUTPUT);
 
   getSensorData();
-  LED_process();
+  //LED_process();
   createJsonObject(jsonObject);
 
   if (Ethernet.begin(mac) == 0)
@@ -136,6 +141,9 @@ void getSensorData(void)
   moderate_sensor_value = analogRead(MODERATESENSOR);
   high_sensor_value = analogRead(HIGHSENSOR);
   veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
+  Serial.println(moderate_sensor_value);
+  Serial.println(high_sensor_value);
+  Serial.println(veryhigh_sensor_value);
   if (moderate_sensor_value < THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD)
   {
     strncpy(waterLevel, "LOW", sizeof(waterLevel));
