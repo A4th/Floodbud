@@ -24,7 +24,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 # initialize the app with the extension
 db.init_app(app)
 
-
 class DeviceLocation(db.Model):
     __tablename__ = 'device_location'
     deviceid = db.Column(db.Integer, primary_key=True)
