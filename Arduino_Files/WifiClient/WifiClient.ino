@@ -29,6 +29,8 @@ int veryhigh_sensor_value = 0;
 
 void (*resetFunc)(void) = 0;
 
+int prevlevel = 0;
+int levelint = 0;
 int sensorValue = 0;
 int contentLength;
 char contentLengthArr[4];
@@ -44,6 +46,17 @@ void setup()
   pinMode(HIGHLED, OUTPUT);
   pinMode(VERYHIGHLED, OUTPUT);
 
+
+}
+
+void loop()
+{
+
+  // if (millis() > 10000)
+  // {
+  //   Serial.println("resetting cuz 10s");
+  //   resetFunc();
+  // }
   getSensorData();
   LED_process();
   createJsonObject(jsonObject);
@@ -76,7 +89,7 @@ void setup()
       {
         // read an incoming byte from the server and print it to serial monitor:
         char c = client.read();
-        Serial.print(c);
+         //Serial.print(c);
       }
     }
 
@@ -89,14 +102,7 @@ void setup()
   { // if not connected:
     Serial.println("connection failed");
   }
-}
 
-void loop()
-{
-  if (millis() > 10000)
-  {
-    resetFunc();
-  }
 }
 
 void LED_process(void)
@@ -146,18 +152,22 @@ void getSensorData(void)
   if (moderate_sensor_value < MODERATETHRESHOLD && high_sensor_value < HIGHTHRESHOLD && veryhigh_sensor_value < VERYHIGHTHRESHOLD)
   {
     strncpy(waterLevel, "LOW", sizeof(waterLevel));
+    levelint = 0;
   }
   else if (high_sensor_value < HIGHTHRESHOLD)
   {
     strncpy(waterLevel, "MODERATE", sizeof(waterLevel));
+    levelint = 1;
   }
   else if (veryhigh_sensor_value < VERYHIGHTHRESHOLD)
   {
     strncpy(waterLevel, "HIGH", sizeof(waterLevel));
+    levelint = 2;
   }
   else
   {
     strncpy(waterLevel, "VERY HIGH", sizeof(waterLevel));
+    levelint = 3;
   }
   // printValues();
   // strncpy(waterLevel,HIGH,sizeof(waterLevel));
