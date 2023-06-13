@@ -44,7 +44,7 @@ void setup()
   pinMode(VERYHIGHLED, OUTPUT);
 
   getSensorData();
-  //LED_process();
+  LED_process();
   createJsonObject(jsonObject);
 
   if (Ethernet.begin(mac) == 0)
@@ -93,7 +93,6 @@ void setup()
 
 void loop()
 {
-  LED_process();
   if (millis() > 10000)
   {
     resetFunc();
