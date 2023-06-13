@@ -1,4 +1,4 @@
-#include <SPI.h>
+
 #include <UIPEthernet.h>
 
 // replace the MAC address below by the MAC address printed on a sticker on the Arduino Shield 2
@@ -15,12 +15,13 @@ int moderate_sensor_value = 0;
 int high_sensor_value = 0;
 int veryhigh_sensor_value = 0;
 
-
-
 #define MODERATESENSOR A2
 #define HIGHSENSOR A1
 #define VERYHIGHSENSOR A0
-#define THRESHOLD 100
+
+#define MODERATETHRESHOLD 580
+#define HIGHTHRESHOLD     600
+#define VERYHIGHTHRESHOLD 600
 
 #define MODERATELED 5
 #define HIGHLED 6
@@ -50,8 +51,7 @@ void setup()
   if (Ethernet.begin(mac) == 0)
   {
     Serial.println("Failed to obtaining an IP address using DHCP");
-    while (true)
-      ;
+    while (true);
   }
 
   // connect to web server on port 80:
@@ -143,15 +143,15 @@ void getSensorData(void)
   Serial.println(moderate_sensor_value);
   Serial.println(high_sensor_value);
   Serial.println(veryhigh_sensor_value);
-  if (moderate_sensor_value < THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD)
+  if (moderate_sensor_value < MODERATETHRESHOLD && high_sensor_value < HIGHTHRESHOLD && veryhigh_sensor_value < VERYHIGHTHRESHOLD)
   {
     strncpy(waterLevel, "LOW", sizeof(waterLevel));
   }
-  else if (high_sensor_value < THRESHOLD)
+  else if (high_sensor_value < HIGHTHRESHOLD)
   {
     strncpy(waterLevel, "MODERATE", sizeof(waterLevel));
   }
-  else if (veryhigh_sensor_value < THRESHOLD)
+  else if (veryhigh_sensor_value < VERYHIGHTHRESHOLD)
   {
     strncpy(waterLevel, "HIGH", sizeof(waterLevel));
   }
