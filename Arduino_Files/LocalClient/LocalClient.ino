@@ -13,7 +13,10 @@
 #define MODERATESENSOR A2
 #define HIGHSENSOR A1
 #define VERYHIGHSENSOR A0
-#define THRESHOLD 100
+
+#define MODERATETHRESHOLD 100
+#define HIGHTHRESHOLD 300
+#define VERYHIGHTHRESHOLD 300
 
 #define MODERATELED 5
 #define HIGHLED 6
@@ -399,15 +402,15 @@ void getSensorData(void)
   moderate_sensor_value = analogRead(MODERATESENSOR);
   high_sensor_value = analogRead(HIGHSENSOR);
   veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
-  if (moderate_sensor_value < THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD)
+  if (moderate_sensor_value < MODERATETHRESHOLD && high_sensor_value < HIGHTHRESHOLD && veryhigh_sensor_value < VERYHIGHTHRESHOLD)
   {
     strncpy(waterLevel,LOW,sizeof(waterLevel)); 
   }
-  else if (high_sensor_value < THRESHOLD)
+  else if (high_sensor_value < HIGHTHRESHOLD)
   {
     strncpy(waterLevel,MODERATE,sizeof(waterLevel)); 
   }
-  else if (veryhigh_sensor_value < THRESHOLD)
+  else if (veryhigh_sensor_value < VERYHIGHTHRESHOLD)
   {
     strncpy(waterLevel,HIGH,sizeof(waterLevel)); 
   }
