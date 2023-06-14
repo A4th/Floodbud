@@ -4,7 +4,7 @@ import pytz
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from sqlalchemy import Sequence
-from sqlalchemy import func
+# from sqlalchemy import func
 
 # Replace 'Asia/Singapore' with the appropriate timezone identifier
 utc_plus_eight = pytz.timezone('Asia/Singapore')
