@@ -1,4 +1,4 @@
-#include <SPI.h>
+
 #include <UIPEthernet.h>
 
 // replace the MAC address below by the MAC address printed on a sticker on the Arduino Shield 2
@@ -18,14 +18,19 @@ int veryhigh_sensor_value = 0;
 #define MODERATESENSOR A2
 #define HIGHSENSOR A1
 #define VERYHIGHSENSOR A0
-#define THRESHOLD 100
 
-#define MODERATELED 3
-#define HIGHLED 4
-#define VERYHIGHLED 5
+#define MODERATETHRESHOLD 580
+#define HIGHTHRESHOLD     600
+#define VERYHIGHTHRESHOLD 600
+
+#define MODERATELED 5
+#define HIGHLED 6
+#define VERYHIGHLED 7
 
 void (*resetFunc)(void) = 0;
 
+int prevlevel = 0;
+int levelint = 0;
 int sensorValue = 0;
 int contentLength;
 char contentLengthArr[4];
@@ -37,7 +42,21 @@ void setup()
 {
   Serial.begin(9600);
   // initialize the Ethernet shield using DHCP:
+  pinMode(MODERATELED, OUTPUT);
+  pinMode(HIGHLED, OUTPUT);
+  pinMode(VERYHIGHLED, OUTPUT);
 
+
+}
+
+void loop()
+{
+
+  // if (millis() > 10000)
+  // {
+  //   Serial.println("resetting cuz 10s");
+  //   resetFunc();
+  // }
   getSensorData();
   LED_process();
   createJsonObject(jsonObject);
@@ -45,8 +64,7 @@ void setup()
   if (Ethernet.begin(mac) == 0)
   {
     Serial.println("Failed to obtaining an IP address using DHCP");
-    while (true)
-      ;
+    while (true);
   }
 
   // connect to web server on port 80:
@@ -71,7 +89,7 @@ void setup()
       {
         // read an incoming byte from the server and print it to serial monitor:
         char c = client.read();
-        Serial.print(c);
+         //Serial.print(c);
       }
     }
 
@@ -84,15 +102,7 @@ void setup()
   { // if not connected:
     Serial.println("connection failed");
   }
-}
 
-void loop()
-{
-  LED_process();
-  if (millis() > 10000)
-  {
-    resetFunc();
-  }
 }
 
 void LED_process(void)
@@ -136,21 +146,28 @@ void getSensorData(void)
   moderate_sensor_value = analogRead(MODERATESENSOR);
   high_sensor_value = analogRead(HIGHSENSOR);
   veryhigh_sensor_value = analogRead(VERYHIGHSENSOR);
-  if (moderate_sensor_value < THRESHOLD && high_sensor_value < THRESHOLD && veryhigh_sensor_value < THRESHOLD)
+  Serial.println(moderate_sensor_value);
+  Serial.println(high_sensor_value);
+  Serial.println(veryhigh_sensor_value);
+  if (moderate_sensor_value < MODERATETHRESHOLD && high_sensor_value < HIGHTHRESHOLD && veryhigh_sensor_value < VERYHIGHTHRESHOLD)
   {
     strncpy(waterLevel, "LOW", sizeof(waterLevel));
+    levelint = 0;
   }
-  else if (high_sensor_value < THRESHOLD)
+  else if (high_sensor_value < HIGHTHRESHOLD)
   {
     strncpy(waterLevel, "MODERATE", sizeof(waterLevel));
+    levelint = 1;
   }
-  else if (veryhigh_sensor_value < THRESHOLD)
+  else if (veryhigh_sensor_value < VERYHIGHTHRESHOLD)
   {
     strncpy(waterLevel, "HIGH", sizeof(waterLevel));
+    levelint = 2;
   }
   else
   {
     strncpy(waterLevel, "VERY HIGH", sizeof(waterLevel));
+    levelint = 3;
   }
   // printValues();
   // strncpy(waterLevel,HIGH,sizeof(waterLevel));
